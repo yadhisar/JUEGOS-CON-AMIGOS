@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Preguntas con Cronómetro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #0d0d2b;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background-color: #121212;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .question {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .question-box {
+            width: 300px;
+            height: 60px;
+            background-color: #c4c4c4;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: black;
+        }
+        .circle-button {
+            width: 70px;
+            height: 70px;
+            background-color: #5c1aff;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin: 20px auto;
+        }
+        .circle-button svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+        .button {
+            background-color: #5c1aff;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #400099;
+        }
+        .timer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .timer-display {
+            width: 120px;
+            height: 120px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: black;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .timer-display::before {
+            content: "+1 min";
+            position: absolute;
+            top: -20px;
+            font-size: 12px;
+            color: white;
+        }
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MENCIONA 3</h1>
+
+    <!-- Caja donde aparecerán las preguntas -->
+    <div class="question-box" id="question">Presiona el botón para empezar</div>
+
+    <!-- Botón circular para cambiar la pregunta -->
+    <button class="circle-button" id="playButton">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 12v40l32-20-32-20z"/>
+        </svg>
+    </button>
+
+    <!-- Botón para finalizar la partida -->
+    <button class="button" id="stopButton">FINALIZAR PARTIDA</button>
+
+    <!-- Cronómetro -->
+    <div class="timer">
+        <div class="timer-display" id="timer">00:00</div>
+        <div class="timer-controls">
+            <button class="button" id="startTimerButton">START</button>
+            <button class="button" id="stopTimerButton">STOP</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        "personas conchudas",
+        "noticias que fueron cortinas de humo",
+        "cosas que no debes hacer en un velorio",
+        "lugares donde meterías una salchicha",
+        "razones para stalkear a alguien",
+        "feos que conozcas",
+        "razones para darle like a un fe@ en Tinder",
+        "cosas húmedas",
+        "cosas que debas golpear fuerte",
+        "distritos donde roban",
+        "cosas que no te gustaría que tu hija hiciese en la cama",
+        "frases que no deberías decir mientras te revisan en el aeropuerto",
+        "cosas que tengan hueco",
+        "maneras de no pagar el pasaje en bus",
+        "maneras estúpidas de morir",
+        "personas que no deberían reproducirse",
+        "cosas que odies hacer con tu familia",
+        "cosas con más que te puedes atragantar",
+        "maneras de perder la billetera",
+        "fetiches raros",
+        "maneras de plagiar de un examen",
+        "usos para el papel higiénico",
+        "cosas que te deban miedo de niño, pero ahora te excitan de adulto",
+        "maneras de rechazar a una persona",
+        "razones para persignarse",
+        "objetos pirateados que tengas",
+        "cosas que suele lamer un perro",
+        "frases que le dirías a un bebé recién nacido feo",
+        "apodos para referirse a los pechos",
+        "lugares donde colocarse un piercing",
+        "maneras de conseguir likes",
+        "maneras de estropear una primera cita",
+        "razones para no mirarte en el espejo",
+        "maneras de hacer gemir",
+        "razones por las que los venezolanos son conocidos",
+        "cosas que no harías con tu ano",
+        "cremas que nadie debería echar en su hamburguesa",
+        "maneras de resistirte al sexo opuesto",
+        "razones para no bañarse",
+        "maneras de detener una bala",
+        "cosas que parecen racistas pero no lo son",
+        "cosas que chupaste y luego te arrepentiste",
+        "razones por las que te deberían despedir del trabajo",
+        "razones por las que deberías estar en la cárcel",
+        "nombres que te pondrías si fueses una estrella porno",
+        "personas que no pasabas en la universidad",
+        "lugares donde se come rico",
+        "razones para coger el celular mientras fornicas",
+        "personas que viste desnudas",
+        "platos de la tía veneno",
+        "personas que te deben dinero",
+        "razones para patearle el culo a alguien",
+        "maneras de romper el hielo",
+        "cosas vergonzosas de tu cuerpo",
+        "apodos que le decían a tus profesores",
+        "cosas malas por las que celebrarías",
+        "frases que no debes decir en un orfanato",
+        "posiciones sexuales",
+        "maneras de escaparse de prisión",
+        "cursos de tu carrera que no sirven para nada",
+        "cosas que estarías dispuesto a perder en una apuesta",
+        "series que jamás recomendarías",
+        "animales que son tus amigos",
+        "personas que se visten hasta el culo",
+        "mujeres con bigote",
+        "países que no deberían existir",
+        "zonas erógenas de tu cuerpo",
+        "maneras de ocultar un pedo",
+        "frases racistas",
+        "cosas que te dan diarrea",
+        "personas fáciles de engañar",
+        "razones por las que te pueden doler las rodillas",
+        "cosas sucias que harías por dinero",
+        "maneras de autosabotearse",
+        "maneras de blanquearse",
+        "razones para hacerte el enfermo",
+        "cosas que crecen muy rápido",
+        "maneras de mantenerse virgen",
+        "personas que odias",
+        "lugares donde hacer una fiesta",
+        "partes de una mujer en la que se fijan los varones",
+        "cosas que dirías durante el sexo y clases",
+        "partes de tu cuerpo que cubrirías con chocolate",
+        "lugares donde lo hayas hecho con tu ex",
+        "zonas erógenas de tu pareja",
+        "maneras de ocultar un embarazo",
+        "maneras de mejorar el sabor de algo que te llevarás a la boca",
+        "motivos para salir con tu jefe",
+        "usos para un consolador",
+        "cosas que no podr ías meter en tu ano",
+        "mentiras que siempre le dices a tus viejos",
+        "situaciones en las que llamarías a tu ex",
+        "mentiras que le dices a una persona con la que empiezas a salir",
+        "cosas que tengan pelo",
+        "razones para limpiar tu cuarto",
+        "excusas para no tener sexo",
+        "circunstancias en las que debes oler antes de lamer",
+        "momentos donde no debiste reír pero lo hiciste",
+        "personas que merecen ser golpeadas",
+        "personas que necesiten perder peso",
+        "lugares donde ocultar dinero",
+        "cosas que obtuviste gratis",
+        "razones por las que los chilenos son conocidos",
+        "canciones sin sentido",
+        "personas que jamás querrías ver desnudas",
+        "usos para el lubricante",
+        "maneras de fingir no estar borracho",
+        "maneras en que las mujeres muestran que están interesadas",
+        "tiendas fáciles de robar",
+        "personas con el trasero más grande que el tuyo",
+        "artículos de primera necesidad durante una pandemia",
+        "razones para beber",
+        "fuentes de energía de un universitario",
+        "partes de un hombre en la que se fijan las mujeres",
+        "razones por las que usarías una máscara",
+        "cosas que aún no has hecho, pero que harías",
+        "razones para cambiarte de ropa interior, 2 veces el mismo día",
+        "cosas que no debes hacer durante el trabajo",
+        "malas ideas para una contraseña",
+        "situaciones comprometedoras en el trabajo",
+        "frases que no debes decir durante un vuelo",
+        "cosas que puedas fumar",
+        "cosas que harías si absolutamente todo fuese legal",
+        "cosas que quieras presumir",
+        "canciones sobre sexo",
+        "personajes que tengan el miembro más corto que el tuyo",
+        "cosas que no puedes comprar",
+        "cosas que se calientan rápidamente",
+        "maneras de jalar un semestre"
+    ];
+
+    let timer;
+    let time = 0;
+    let timerStarted = false;
+
+    const questionBox = document.getElementById('question');
+    const playButton = document.getElementById('playButton');
+    const stopButton = document.getElementById('stopButton');
+    const timerElement = document.getElementById('timer');
+    const startTimerButton = document.getElementById('startTimerButton');
+    const stopTimerButton = document.getElementById('stopTimerButton');
+
+    // Función para generar una pregunta aleatoria
+    function getRandomQuestion() {
+        const randomIndex = Math.floor(Math.random() * questions.length);
+        return questions[randomIndex];
+    }
+
+    // Evento para cambiar la pregunta al presionar el botón circular
+    playButton.addEventListener('click', () => {
+        questionBox.textContent = getRandomQuestion();
+    });
+
+    // Función para iniciar el cronómetro
+    function startTimer() {
+        timerStarted = true;
+        timer = setInterval(() => {
+            time++;
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+        startTimerButton.disabled = true;
+        stopTimerButton.disabled = false;
+    }
+
+    // Función para detener el cronómetro
+    function stopTimer() {
+        clearInterval(timer);
+        timerStarted = false;
+        startTimerButton.disabled = false;
+        stopTimerButton.disabled = true;
+    }
+
+    // Función para reiniciar el juego
+    function resetGame() {
+        time = 0;
+        timerElement.textContent = "00:00";
+        questionBox.textContent = "Presiona el botón para empezar";
+        stopTimer();
+    }
+
+    // Evento para iniciar el cronómetro
+    startTimerButton.addEventListener('click', () => {
+        if (!timerStarted) {
+            startTimer();
+        }
+    });
+
+    // Evento para detener el cronómetro
+    stopTimerButton.addEventListener('click', () => {
+        if (timerStarted) {
+            stopTimer();
+        }
+    });
+
+    // Evento para finalizar el juego y reiniciar todo
+    stopButton.addEventListener('click', () => {
+        resetGame();
+    });
+</script>
+
+</body>
+</html>
